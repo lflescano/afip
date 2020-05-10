@@ -1,0 +1,23 @@
+{
+    "name": "dedalo/afip-ws",
+    "description": "Libreria para los servicios SOAP de Afip.",
+    "keywords": ["libreria", "dedalo", "AFIP", "SOAP"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eduardo Sebastian Nola",
+            "email": "edunola13@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.6.0",
+        "spipu/html2pdf": "^v5.0.1"
+    },
+    "require-dev": {        
+    },
+    "autoload": {
+        "psr-4": {
+            "Dedalo\\Afip\\": "src/"
+        }
+    }
+}
