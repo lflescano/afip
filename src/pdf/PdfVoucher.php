@@ -18,6 +18,71 @@ class PdfVoucher extends \Spipu\Html2Pdf\Html2Pdf{
     protected $parseIvaType= array(3 => 0, 4 => '10.5', 5 => '21', 6 => '27', 8 => '5', 9 => '2.5');
     private $lang = array();
     const LANG_EN = 2;
+
+    private $vouchersType = [
+        1 => "FACTURA A",
+        2 =>"NOTA DE DEBITO A",
+        3 =>"NOTA DE CREDITO A",
+        4 =>"RECIBO A",
+        5 =>"NOTAS DE VENTA AL CONTADO A",
+        6 =>"FACTURA B",
+        7 =>"NOTA DE DEBITO B",
+        8 =>"NOTA DE CREDITO B",
+        9 =>"RECIBO B",
+        10 => "NOTAS DE VENTA AL CONTADO B",
+        11 => "FACTURA C",
+        12 => "NOTA DE DEBITO C",
+        13 => "NOTA DE CREDITO C",
+        15 => "RECIBO C",
+        16 => "NOTA DE VENTA AL CONTADO C",
+        19 => "FACTURAS POR OPERACIONES CON EL EXTERIOR",
+        20 => "NOTAS DE DEBITO POR OPERACIONES CON EL EXTERIOR",
+        21 => "NOTAS DE CREDITO POR OPERACIONES CON E EXTERIOR",
+        22 => "FACTURAS PERMISO EXPORTACION SIMPLIFICADO DTO. 855/97",
+        23 => "COMPROBANTES CLASE “A” DE COMPRA PRIMARIA PARA EL SECTOR PESQUERO MARITIMO",
+        24 => "COMPROBANTES CLASE “A” DE CONSIGNACION PRIMARIA PARA EL SECTOR PESQUERO MARITIMO",
+        25 => "COMPROBANTES CLASE “B” DE COMPRA PRIMARIA PARA EL SECTOR PESQUERO MARITIMO",
+        26 => "COMPROBANTES CLASE “B” DE CONSIGNACION PRIMARIA PARA EL SECTOR PESQUERO MARITIMO",
+        27 => "LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE A",
+        28 => "LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE B",
+        29 => "LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE C",
+        30 => "COMPROBANTES DE COMPRA DE BIENES USADOS",
+        31 => "MANDATO/CONSIGNACION",
+        32 => "COMPROBANTE DE COMPRA DE MATERIALES A RECICLAR PROVENIENTES DE RESIDUOS",
+        34 => "COMPROBANTES A del Anexo I, Apartado A, inc. f), R.G. N° 1.415",
+        35 => "COMPROBANTES B del Anexo I, Apartado A, inc. f), R.G. N° 1.415",
+        36 => "COMPROBANTES C del Anexo I, Apartado A, inc. f), R.G. N° 1.415",
+        37 => "NOTAS DE DEBITO O DOCUMENTOS EQUIVALENTES que cumplan con la R.G. N° 1.415",
+        38 => "NOTAS DE CREDITO O DOCUMENTOS EQUIVALENTES QUE CUMPLAN CON LA R.G. N° 1.415",
+        39 => "OTROS COMPROBANTES A QUE CUMPLAN CON LA R.G. N° 1.415",
+        40 => "OTROS COMPROBANTES B QUE CUMPLAN CON LA R.G. N° 1.415",
+        41 => "OTROS COMPROBANTES C QUE CUMPLAN CON LA R.G. N° 1.415",
+        43 => "NOTA DE CREDITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE B",
+        44 => "NOTA DE CREDITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE C",
+        45 => "NOTA DE DEBITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE A",
+        46 => "NOTA DE DEBITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE B",
+        47 => "NOTA DE DEBITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE C",
+        48 => "NOTA DE CREDITO LIQUIDACION UNICA COMERCIAL IMPOSITIVA CLASE A",
+        49 => "COMPROBANTE DE COMPRA DE BIENES USADOS NO REGISTRABLES A CONSUMIDORES FINALES",
+        51 => "FACTURAS M",
+        52 => "NOTAS DE DEBITO M",
+        53 => "NOTAS DE CREDITO M",
+        54 => "RECIBOS M",
+        55 => "NOTAS DE VENTA AL CONTADO M",
+        56 => "COMPROBANTES M del Anexo I, Apartado A, inc. f), R.G. N° 1.415",
+        57 => "OTROS COMPROBANTES M que cumplan con la R.G. N° 1.415",
+        58 => "CUENTA DE VENTA Y LIQUIDO PRODUCTO M",
+        59 => "LIQUIDACION M",
+        60 => "CUENTAS DE VENTA Y LIQUIDO PRODUCTO A",
+        61 => "CUENTAS DE VENTA Y LIQUIDO PRODUCTO B",
+        62 => "CUENTAS DE VENTA Y LIQUIDO PRODUCTO C",
+        63 => "LIQUIDACIONES A",
+        64 => "LIQUIDACIONES B",
+        70 => "RECIBO FACTURA DE CREDITO R",
+        91 => "REMITO R",
+        150 => "LIQUIDACIÓN DE COMPRA PRIMARIA PARA EL SECTOR TABACALERO A",
+        151 => "LIQUIDACIÓN DE COMPRA PRIMARIA PARA EL SECTOR TABACALERO B",
+    ];
     
     function __construct($data, $extraData, $config) {
         parent::__construct('P', 'A4', 'es');
@@ -51,6 +116,14 @@ class PdfVoucher extends \Spipu\Html2Pdf\Html2Pdf{
             return $key;
         }
     }
+
+    private function voucherType($key) {
+        if (array_key_exists($key,$this->vouchersType)) {
+            return $this->vouchersType[$key];
+        } else {
+            return 'SIN TIPO';
+        }
+    }
     
     /**
      * Genera la cabecera del comprobante
@@ -67,7 +140,8 @@ class PdfVoucher extends \Spipu\Html2Pdf\Html2Pdf{
                 $this->html .= "</div>";
                 $this->html .= "<div class='border-div'>";
             }
-            $type = $this->lang("FACTURA");
+            
+            $type = $this->voucherType($this->data["CbteTipo"]);
             $letter = $this->extraData["letra"]; //DEBE SER A, B o C
             $number = "<span style='font-weight: bold'>" . $this->lang("Punto de venta") . ":</span> " . str_pad($this->data["PtoVta"], 4, "0", STR_PAD_LEFT) . " <span style='font-weight: bold'>  " . $this->lang("Comp. Nro") . ":</span> " . str_pad($this->data["CbteDesde"], 8, "0", STR_PAD_LEFT);
             $tmp = DateTime::createFromFormat('Ymd',$this->data["CbteFch"]);
@@ -285,19 +359,19 @@ class PdfVoucher extends \Spipu\Html2Pdf\Html2Pdf{
     private function total_line_B() {
         $this->html .= '    <table class="responsive-table">';
         $this->html .= '        <tr>';
-        $this->html .= '		<td class="right-text" style="width: 75%; font-weight:bold">' . $this->lang("Subtotal") . ': '. $this->lang($this->data["MonId"]) .'</td>';
+        $this->html .= '        <td class="right-text" style="width: 75%; font-weight:bold">' . $this->lang("Subtotal") . ': '. $this->lang($this->data["MonId"]) .'</td>';
         $text = number_format((float) round($this->data["ImpTotal"], 2), 2, '.', '');
-        $this->html .= '		<td class="right-text" style="width: 25%;">' . $text . '</td>';
+        $this->html .= '        <td class="right-text" style="width: 25%;">' . $text . '</td>';
         $this->html .= '        </tr>';
         $this->html .= '        <tr>';
-        $this->html .= '		<td class="right-text" style="width: 75%; font-weight:bold">' . $this->lang("Importe otros tributos") . ': '. $this->lang($this->data["MonId"]) .'</td>';
+        $this->html .= '        <td class="right-text" style="width: 75%; font-weight:bold">' . $this->lang("Importe otros tributos") . ': '. $this->lang($this->data["MonId"]) .'</td>';
         $text = number_format((float) round($this->data["ImpTrib"], 2), 2, '.', '');
-        $this->html .= '		<td class="right-text" style="width: 25%;">' . $text . '</td>';
+        $this->html .= '        <td class="right-text" style="width: 25%;">' . $text . '</td>';
         $this->html .= '        </tr>';
         $this->html .= '        <tr>';
-        $this->html .= '		<td class="right-text" style="width: 75%;font-weight:bold">' . $this->lang("Importe total") . ': '. $this->lang($this->data["MonId"]) .'</td>';
+        $this->html .= '        <td class="right-text" style="width: 75%;font-weight:bold">' . $this->lang("Importe total") . ': '. $this->lang($this->data["MonId"]) .'</td>';
         $text = number_format((float) round($this->data["ImpTotal"], 2), 2, '.', '');
-        $this->html .= '		<td class="right-text" style="width: 25%;">' . $text . '</td>';
+        $this->html .= '        <td class="right-text" style="width: 25%;">' . $text . '</td>';
         $this->html .= '        </tr>';
         $this->html .= '    </table>';
     }
@@ -419,18 +493,18 @@ class PdfVoucher extends \Spipu\Html2Pdf\Html2Pdf{
                 $text_5 = "&nbsp;";
             }
             $this->html .= '        <tr>';
-            $this->html .= '		<td class="" style="width: 30%;">' . $text_left . "</td>";
-            $this->html .= '		<td class="center-text" style="width: 40%;">';
+            $this->html .= '        <td class="" style="width: 30%;">' . $text_left . "</td>";
+            $this->html .= '        <td class="center-text" style="width: 40%;">';
             $this->html .= '                ' . $this->lang("Pag.") . ' [[page_cu]]/[[page_nb]]';
-            $this->html .= '		</td>';
-            $this->html .= '		<td class="right-text" style="width: 15%;">' . $text_1 . "</td>";
-            $this->html .= '		<td class="left-text" style="width: 15%;">' . $text_2 . "</td>";
+            $this->html .= '        </td>';
+            $this->html .= '        <td class="right-text" style="width: 15%;">' . $text_1 . "</td>";
+            $this->html .= '        <td class="left-text" style="width: 15%;">' . $text_2 . "</td>";
             $this->html .= '        </tr>';
             $this->html .= '        <tr>';
-            $this->html .= '		<td class="" style="width: 30%;">' . $text_5 . "</td>";
-            $this->html .= '		<td class="center-text" style="width: 40%;">&nbsp;</td>';
-            $this->html .= '		<td class="right-text" style="width: 15%;">' . $text_3 . "</td>";
-            $this->html .= '		<td class="left-text" style="width: 15%;">' . $text_4 . "</td>";
+            $this->html .= '        <td class="" style="width: 30%;">' . $text_5 . "</td>";
+            $this->html .= '        <td class="center-text" style="width: 40%;">&nbsp;</td>';
+            $this->html .= '        <td class="right-text" style="width: 15%;">' . $text_3 . "</td>";
+            $this->html .= '        <td class="left-text" style="width: 15%;">' . $text_4 . "</td>";
             $this->html .= '        </tr>';
             $this->html .= '    </table>';
             if ($this->extraData["cae"] != 0) {
